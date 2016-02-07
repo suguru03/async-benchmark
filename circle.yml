@@ -1,3 +1,8 @@
 machine:
   node:
     version: 5
+
+test:
+  override:
+    - gulp init
+    - node ./index.js each map filter reject detect reduce sortBy some every concat parallel series waterfall whilst do until during times
