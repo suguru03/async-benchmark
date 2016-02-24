@@ -12,7 +12,7 @@ const config = require('../config');
 
 gulp.task('init', (done) => {
 
-  const keys = ['neo-async'];
+  const keys = ['async', 'neo-async'];
   const keyPath = _.map(keys, (key) => {
     return path.resolve(__dirname, '..', '..', key);
   });
@@ -22,6 +22,8 @@ gulp.task('init', (done) => {
       rimraf(key, next);
     }),
 
-    async.apply(git.clone, config.repository['neo-async'])
+    async.apply(async.map, keys, (key, next) => {
+      git.clone(config.repository[key], next);
+    })
   ], done);
 });

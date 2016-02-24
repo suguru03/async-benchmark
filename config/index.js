@@ -1,11 +1,11 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
-var limit = 4;
-var current = 0;
-var concurrency = 1;
-var collection, iterator, tasks, test, worker, func, times;
+const limit = 4;
+const current = 0;
+const concurrency = 1;
+let collection, iterator, tasks, test, worker, func, times;
 
 module.exports = {
   defaults: {
@@ -1591,8 +1591,8 @@ function createObjectCollection(count) {
 }
 
 function createMapCollection(count) {
-  var map = new Map();
-  _.forOwn(createObjectCollection(count), function(v, k) {
+  const map = new Map();
+  _.forOwn(createObjectCollection(count), (v, k) => {
     map.set(k, v);
   });
   return map;

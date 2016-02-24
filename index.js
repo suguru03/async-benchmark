@@ -7,7 +7,7 @@ const Comparator = require('func-comparator').Comparator;
 
 const async = require('./neo-async');
 const functions = {
-  'async': require('async'),
+  'async': require('./async'),
   'neo-async_pre': require('neo-async'),
   'neo-async_current': async
 };
@@ -51,20 +51,15 @@ async.eachSeries(tasks, (task, name, next) => {
   let func = _.get(task, 'func', defaults.func);
   let useFunctions = defaults.functions;
   if (task.functions) {
-    useFunctions = _.filter(useFunctions, (func, index) => {
-      return _.includes(task.functions, index);
+    useFunctions = _.map(task.functions, (key) => {
+      return useFunctions[key] || key;
     });
   }
 
   let funcs = _.chain(functions)
     .pick(useFunctions)
     .mapValues((async, key) => {
-      if (_.isFunction(func)) {
-        return function(callback) {
-          func(async, callback);
-        };
-      }
-      var _func = _.get(func, key, func['default']);
+      var _func = _.isFunction(func) ? func : _.get(func, key, func['default']);
       return function(callback) {
         _func(async, callback);
       };
