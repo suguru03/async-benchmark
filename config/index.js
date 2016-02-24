@@ -3,8 +3,8 @@
 const _ = require('lodash');
 
 const limit = 4;
-const current = 0;
 const concurrency = 1;
+let current = 0;
 let collection, iterator, tasks, test, worker, func, times;
 
 module.exports = {
