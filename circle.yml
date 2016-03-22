@@ -5,4 +5,4 @@ machine:
 test:
   override:
     - gulp init
-    - node ./index.js each eachSeries eachLimit map mapSeries mapLimit parallel series parallelLimit waterfall auto autoInject retry race
+    - node ./index.js parallel series parallelLimit waterfall auto autoInject retry race
