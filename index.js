@@ -7,7 +7,13 @@ const Comparator = require('func-comparator').Comparator;
 
 const async = require('./neo-async');
 const functions = {
-  'async': require('./async'),
+  'async': (function() {
+    try {
+      return require('./async');
+    } catch(e) {
+      return require('async');
+    }
+  })(),
   'neo-async_pre': require('neo-async'),
   'neo-async_current': async
 };

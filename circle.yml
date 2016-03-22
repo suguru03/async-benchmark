@@ -5,4 +5,4 @@ machine:
 test:
   override:
     - gulp init
-    - node ./index.js each map filter reject detect reduce sortBy some every concat parallel series waterfall whilst do until during times
+    - node ./index.js each eachSeries eachLimit map mapSeries mapLimit parallel series parallelLimit waterfall auto autoInject retry race

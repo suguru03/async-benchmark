@@ -1182,6 +1182,7 @@ module.exports = {
     }
   },
   'parallel:array': {
+    functions: [1, 2],
     setup: function(count) {
       tasks = _.times(count, function() {
         return function(done) {
@@ -1578,6 +1579,118 @@ module.exports = {
     },
     func: function(async, callback) {
       async.timesLimit(times, limit, iterator, callback);
+    }
+  },
+  'race': {
+    functions: [0, 2],
+    setup: function(count) {
+      tasks = _.times(count, function() {
+        return function(done) {
+          done();
+        };
+      });
+    },
+    func: function(async, callback) {
+      async.race(tasks, callback);
+    }
+  },
+  'EventEmitter:series:simple': {
+    times: 10000,
+    functions: [1, 2],
+    setup: function(count) {
+      tasks = _.times(count, function(n) {
+        return function(callback) {
+          callback(null, n);
+        };
+      });
+    },
+    func: function(async, callback) {
+      new async.EventEmitter()
+        .on('event', tasks)
+        .emit('event', callback);
+    }
+  },
+  'auto': {
+    times: 100000,
+    functions: [0, 2],
+    setup: function() {
+      tasks = {
+        task1: ['task2', function(results, callback) {
+          callback();
+        }],
+        task2: ['task3', function(results, callback) {
+          callback();
+        }],
+        task3: ['task5', function(results, callback) {
+          callback();
+        }],
+        task4: ['task1', 'task2', function(results, callback) {
+          callback();
+        }],
+        task5: function(callback) {
+          callback();
+        },
+        task6: ['task7', function(results, callback) {
+          callback();
+        }],
+        task7: function(callback) {
+          callback();
+        }
+      };
+    },
+    func: function(async, callback) {
+      async.auto(tasks, callback);
+    }
+  },
+  'autoInject': {
+    times: 100000,
+    functions: [0, 2],
+    setup: function() {
+      tasks = {
+        task1: ['task2', function(task2, callback) {
+          callback(null, 'task1');
+        }],
+        task2: function(task3, callback) {
+          callback(null, 'task2');
+        },
+        task3: ['task5', function(task5, callback) {
+          callback(null, 'task3');
+        }],
+        task4: function(task1, task2, callback) {
+          callback(null, 'task4');
+        },
+        task5: function(callback) {
+          callback(null, 'task5');
+        },
+        task6: function(task7, callback) {
+          callback(null, 'task6');
+        },
+        task7: function(callback) {
+          callback(null, 'task7');
+        }
+      };
+    },
+    func: function(async, callback) {
+      async.autoInject(tasks, callback);
+    }
+  },
+  'retry': {
+    times: 100000,
+    setup: function(count) {
+      times = count;
+      func = function(callback) {
+        if (++current === times) {
+          callback();
+        } else {
+          process.nextTick(function() {
+            callback('error');
+          });
+        }
+      };
+    },
+    func: function(async, callback) {
+      current = 0;
+      async.retry(times, func, callback);
     }
   }
 };
