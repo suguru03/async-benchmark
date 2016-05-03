@@ -1,18 +1,21 @@
 'use strict';
 
-const path = require('path');
-
 const _ = require('lodash');
 const Comparator = require('func-comparator').Comparator;
 
 const async = require('./neo-async');
 const functions = {
   'async': (function() {
+    let _async;
     try {
-      return require('./async');
+      _async = require('./async');
+      _async.VERSION = require('./async/package.json').version;
     } catch(e) {
-      return require('async');
+      console.error(e);
+      _async = require('async');
+      _async.VERSION = require('async/package.json').version;
     }
+    return _async;
   })(),
   'neo-async_pre': require('neo-async'),
   'neo-async_current': async
@@ -20,12 +23,7 @@ const functions = {
 
 console.log('--------------------------------------');
 _.forEach(functions, (async, key) => {
-  let version = async.VERSION;
-  if (!version) {
-    let p = path.resolve(__dirname, 'node_modules', key, 'package.json');
-    version = _.get(require(p), 'version');
-  }
-  console.log('[%s] v%s', key, version);
+  console.log('[%s] v%s', key, async.VERSION);
 });
 
 const config = _.get(global, 'config', require('./config'));
@@ -52,7 +50,7 @@ async.eachSeries(tasks, (task, name, next) => {
   }
   let count = _.get(task, 'count', defaults.count);
   let times = _.get(task, 'times', defaults.times);
-  let setup = _.get(task, 'setup', defaults.times);
+  let setup = _.get(task, 'setup', _.noop);
 
   let func = _.get(task, 'func', defaults.func);
   let useFunctions = defaults.functions;
@@ -65,7 +63,7 @@ async.eachSeries(tasks, (task, name, next) => {
   let funcs = _.chain(functions)
     .pick(useFunctions)
     .mapValues((async, key) => {
-      var _func = _.isFunction(func) ? func : _.get(func, key, func['default']);
+      let _func = _.isFunction(func) ? func : _.get(func, key, func['default']);
       return function(callback) {
         _func(async, callback);
       };
@@ -80,6 +78,7 @@ async.eachSeries(tasks, (task, name, next) => {
     .set(funcs)
     .async()
     .times(times)
+    .error(console.error)
     .start()
     .result((err, res) => {
       _.chain(res)

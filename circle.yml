@@ -1,8 +1,9 @@
 machine:
   node:
-    version: 5
+    version: 6
 
 test:
+  timeout: 600
   override:
     - gulp init
     - node ./index.js parallel series parallelLimit waterfall auto autoInject retry race
