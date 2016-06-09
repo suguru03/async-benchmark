@@ -10,6 +10,7 @@ const times = argv.times;
 const count = argv.c || argv.count;
 const target = argv.t || argv.target; // -t <function name>
 const funcExp = argv.f || argv.functions; // -f '(.*)current|neo-async*'
+const skip = argv.skip || false;
 
 console.log('======================================');
 const benchmarks = _.chain([
@@ -77,26 +78,50 @@ async.eachSeries(tasks, (task, name, done) => {
   console.log('[' + name + '] Comparating... ');
 
   let func = _.get(task, 'func', defaults.func);
-  async.eachSeries(benchmarks, (benchmarker, benchmark, next) => {
-    let funcs = _.mapValues(functions, (async) => {
-      return (callback) => {
-        func(async, callback);
-      };
-    });
-    console.log('--------------------------------------');
-    console.log('[%s] Executing...', benchmark);
-    benchmarker(funcs, _times)((err, res) => {
-      if (err) {
-        return next(err);
+
+  async.angelFall([
+
+    // test
+    async.apply(async.transformSeries, functions, {}, (result, async, key, next) => {
+      try {
+        func(async, (err) => {
+          if (err) {
+            return next();
+          }
+          result[key] = (callback) => {
+            func(async, callback);
+          };
+          next();
+        });
+      } catch(e) {
+        // console.error('skip: %s.%s', key, name);
+        return next();
       }
-      _.forEach(res, (data, index, array) => {
-        let name = data.name;
-        let mean = data.mean;
-        let diff = (_.first(array).mean) / mean;
-        let rate = mean / (_.first(array).mean);
-        console.log('[%d] "%s" %sμs[%s][%s]', ++index, name, mean.toPrecision(3), diff.toPrecision(3), rate.toPrecision(3));
-      });
-      next();
-    });
-  }, done);
+    }),
+
+    (funcs, next) => {
+      if (skip && _.size(functions) !== _.size(funcs)) {
+        console.log('skip:%s', name);
+        return next();
+      }
+      async.eachSeries(benchmarks, (benchmarker, benchmark, cb) => {
+
+        console.log('--------------------------------------');
+        console.log('[%s] Executing...', benchmark);
+        benchmarker(funcs, _times)((err, res) => {
+          if (err) {
+            return cb(err);
+          }
+          _.forEach(res, (data, index, array) => {
+            let name = data.name;
+            let mean = data.mean;
+            let diff = (_.first(array).mean) / mean;
+            let rate = mean / (_.first(array).mean);
+            console.log('[%d] "%s" %sμs[%s][%s]', ++index, name, mean.toPrecision(3), diff.toPrecision(3), rate.toPrecision(3));
+          });
+          cb();
+        });
+      }, next);
+    }
+  ], done);
 });

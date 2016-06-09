@@ -11,8 +11,7 @@ module.exports = {
   defaults: {
     avaiable: true,
     count: 100,
-    times: 500000,
-    functions: ['async', 'neo-async_pre', 'neo-async_current']
+    times: 500000
   },
   'each:array': {
     setup: function(count) {
@@ -26,7 +25,6 @@ module.exports = {
     }
   },
   'each:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -38,24 +36,17 @@ module.exports = {
     }
   },
   'each:object:arg3': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, key, callback) {
         callback();
       };
     },
-    func: {
-      async: function(async, callback) {
-        async.forEachOf(collection, iterator, callback); // not use only_once
-      },
-      'neo-async_current': function(async, callback) {
-        async.each(collection, iterator, callback);
-      }
+    func: function(async, callback) {
+      async.forEachOf(collection, iterator, callback);
     }
   },
   'each:map': {
-    functions: [2],
     setup: function(count) {
       collection = createMapCollection(count);
       iterator = function(n, callback) {
@@ -78,7 +69,6 @@ module.exports = {
     }
   },
   'eachSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -101,7 +91,6 @@ module.exports = {
     }
   },
   'eachLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -113,7 +102,6 @@ module.exports = {
     }
   },
   'eachOf:array': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, key, callback) {
@@ -125,7 +113,6 @@ module.exports = {
     }
   },
   'eachOf:object': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, key, callback) {
@@ -137,11 +124,10 @@ module.exports = {
     }
   },
   'eachOfSeries:array': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, key, callback) {
-        callback();
+        process.nextTick(callback);
       };
     },
     func: function(async, callback) {
@@ -149,11 +135,10 @@ module.exports = {
     }
   },
   'eachOfSeries:object': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, key, callback) {
-        callback();
+        process.nextTick(callback);
       };
     },
     func: function(async, callback) {
@@ -161,11 +146,10 @@ module.exports = {
     }
   },
   'eachOfLimit:array': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, key, callback) {
-        callback();
+        process.nextTick(callback);
       };
     },
     func: function(async, callback) {
@@ -173,11 +157,10 @@ module.exports = {
     }
   },
   'eachOfLimit:object': {
-    functions: [0, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, key, callback) {
-        callback();
+        process.nextTick(callback);
       };
     },
     func: function(async, callback) {
@@ -221,7 +204,6 @@ module.exports = {
     }
   },
   'mapSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -248,7 +230,6 @@ module.exports = {
     }
   },
   'mapLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -262,10 +243,9 @@ module.exports = {
     }
   },
   'mapValues:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
-      iterator = function(n, callback) {
+      iterator = function(n, key, callback) {
         callback(null, n);
       };
     },
@@ -274,10 +254,9 @@ module.exports = {
     }
   },
   'mapValues:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
-      iterator = function(n, callback) {
+      iterator = function(n, key, callback) {
         callback(null, n);
       };
     },
@@ -286,10 +265,9 @@ module.exports = {
     }
   },
   'mapValuesSeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
-      iterator = function(n, callback) {
+      iterator = function(n, key, callback) {
         process.nextTick(function() {
           callback(null, n);
         });
@@ -300,10 +278,9 @@ module.exports = {
     }
   },
   'mapValuesSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
-      iterator = function(n, callback) {
+      iterator = function(n, key, callback) {
         process.nextTick(function() {
           callback(null, n);
         });
@@ -314,11 +291,12 @@ module.exports = {
     }
   },
   'mapValuesLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
-      iterator = function(n, callback) {
-        callback(null, n);
+      iterator = function(n, key, callback) {
+        process.nextTick(function() {
+          callback(null, n);
+        });
       };
     },
     func: function(async, callback) {
@@ -326,11 +304,12 @@ module.exports = {
     }
   },
   'mapValuesLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
-      iterator = function(n, callback) {
-        callback(null, n);
+      iterator = function(n, key, callback) {
+        process.nextTick(function() {
+          callback(null, n);
+        });
       };
     },
     func: function(async, callback) {
@@ -345,23 +324,18 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.filter(collection, iterator, function(err, res) {
-        callback(err, res);
-      });
+      async.filter(collection, iterator, callback);
     }
   },
   'filter:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(n % 2);
+        callback(null, n % 2);
       };
     },
     func: function(async, callback) {
-      async.filter(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.filter(collection, iterator, callback);
     }
   },
   'filterSeries:array': {
@@ -369,75 +343,62 @@ module.exports = {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.filterSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.filterSeries(collection, iterator, callback);
     }
   },
   'filterSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.filterSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.filterSeries(collection, iterator, callback);
     }
   },
   'filterLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.filterLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.filterLimit(collection, limit, iterator, callback);
     }
   },
   'filterLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.filterLimit(collection, 4, iterator, function(res) {
-        callback(null, res);
-      });
+      async.filterLimit(collection, 4, iterator, callback);
     }
   },
   'reject:array': {
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(n % 2);
+        callback(null, n % 2);
       };
     },
     func: function(async, callback) {
-      async.reject(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reject(collection, iterator, callback);
     }
   },
   'reject:object': {
@@ -445,13 +406,11 @@ module.exports = {
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(n % 2);
+        callback(null, n % 2);
       };
     },
     func: function(async, callback) {
-      async.reject(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reject(collection, iterator, callback);
     }
   },
   'rejectSeries:array': {
@@ -459,89 +418,73 @@ module.exports = {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.rejectSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.rejectSeries(collection, iterator, callback);
     }
   },
   'rejectSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.rejectSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.rejectSeries(collection, iterator, callback);
     }
   },
   'rejectLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.rejectLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.rejectLimit(collection, limit, iterator, callback);
     }
   },
   'rejectLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.rejectLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.rejectLimit(collection, limit, iterator, callback);
     }
   },
   'detect:array': {
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.detect(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detect(collection, iterator, callback);
     }
   },
   'detect:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.detect(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detect(collection, iterator, callback);
     }
   },
   'detectSeries:array': {
@@ -549,154 +492,125 @@ module.exports = {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(false);
+          callback(null, false);
         });
       };
     },
     func: function(async, callback) {
-      async.detectSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detectSeries(collection, iterator, callback);
     }
   },
   'detectSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(false);
+          callback(null, false);
         });
       };
     },
     func: function(async, callback) {
-      async.detectSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detectSeries(collection, iterator, callback);
     }
   },
   'detectLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(false);
+          callback(null, false);
         });
       };
     },
     func: function(async, callback) {
-      async.detectLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detectLimit(collection, limit, iterator, callback);
     }
   },
   'detectLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(false);
+          callback(null, false);
         });
       };
     },
     func: function(async, callback) {
-      async.detectLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.detectLimit(collection, limit, iterator, callback);
     }
   },
   'pick:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(n % 2);
+        callback(null, n % 2);
       };
     },
     func: function(async, callback) {
-      async.pick(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pick(collection, iterator, callback);
     }
   },
   'pick:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(n % 2);
+        callback(null, n % 2);
       };
     },
     func: function(async, callback) {
-      async.pick(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pick(collection, iterator, callback);
     }
   },
   'pickSeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.pickSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pickSeries(collection, iterator, callback);
     }
   },
   'pickSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.pickSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pickSeries(collection, iterator, callback);
     }
   },
   'pickLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.pickLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pickLimit(collection, limit, iterator, callback);
     }
   },
   'pickLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(n % 2);
+          callback(null, n % 2);
         });
       };
     },
     func: function(async, callback) {
-      async.pickLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.pickLimit(collection, limit, iterator, callback);
     }
   },
   'reduce:array': {
@@ -709,13 +623,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.reduce(collection, 0, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reduce(collection, 0, iterator, callback);
     }
   },
   'reduce:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(result, n, callback) {
@@ -725,9 +636,7 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.reduce(collection, 0, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reduce(collection, 0, iterator, callback);
     }
   },
   'reduceRight:array': {
@@ -740,13 +649,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.reduceRight(collection, 0, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reduceRight(collection, 0, iterator, callback);
     }
   },
   'reduceRight:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(result, n, callback) {
@@ -756,13 +662,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.reduceRight(collection, 0, iterator, function(res) {
-        callback(null, res);
-      });
+      async.reduceRight(collection, 0, iterator, callback);
     }
   },
   'transform:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(result, n, index, callback) {
@@ -771,13 +674,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transform(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transform(collection, iterator, callback);
     }
   },
   'transform:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(result, n, index, callback) {
@@ -786,13 +686,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transform(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transform(collection, iterator, callback);
     }
   },
   'transformSeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(result, n, index, callback) {
@@ -801,13 +698,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transformSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transformSeries(collection, iterator, callback);
     }
   },
   'transformSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(result, n, index, callback) {
@@ -816,13 +710,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transformSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transformSeries(collection, iterator, callback);
     }
   },
   'transformLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(result, n, index, callback) {
@@ -831,13 +722,10 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transformLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transformLimit(collection, limit, iterator, callback);
     }
   },
   'transformLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(result, n, index, callback) {
@@ -846,9 +734,7 @@ module.exports = {
       };
     },
     func: function(async, callback) {
-      async.transformLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.transformLimit(collection, limit, iterator, callback);
     }
   },
   'sortBy:array': {
@@ -863,7 +749,6 @@ module.exports = {
     }
   },
   'sortBy:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -875,7 +760,6 @@ module.exports = {
     }
   },
   'sortBySeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
@@ -889,7 +773,6 @@ module.exports = {
     }
   },
   'sortBySeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -903,7 +786,6 @@ module.exports = {
     }
   },
   'sortByLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
@@ -917,7 +799,6 @@ module.exports = {
     }
   },
   'sortByLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -934,170 +815,136 @@ module.exports = {
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.some(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.some(collection, iterator, callback);
     }
   },
   'some:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.some(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.some(collection, iterator, callback);
     }
   },
   'someSeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.someSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.someSeries(collection, iterator, callback);
     }
   },
   'someSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.someSeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.someSeries(collection, iterator, callback);
     }
   },
   'someLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.someLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.someLimit(collection, limit, iterator, callback);
     }
   },
   'someLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(false);
+        callback(null, false);
       };
     },
     func: function(async, callback) {
-      async.someLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.someLimit(collection, limit, iterator, callback);
     }
   },
   'every:array': {
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(true);
+        callback(null, true);
       };
     },
     func: function(async, callback) {
-      async.every(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.every(collection, iterator, callback);
     }
   },
   'every:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(true);
+        callback(null, true);
       };
     },
     func: function(async, callback) {
-      async.every(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.every(collection, iterator, callback);
     }
   },
   'everySeries:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(true);
+          callback(null, true);
         });
       };
     },
     func: function(async, callback) {
-      async.everySeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.everySeries(collection, iterator, callback);
     }
   },
   'everySeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
         process.nextTick(function() {
-          callback(true);
+          callback(null, true);
         });
       };
     },
     func: function(async, callback) {
-      async.everySeries(collection, iterator, function(res) {
-        callback(null, res);
-      });
+      async.everySeries(collection, iterator, callback);
     }
   },
   'everyLimit:array': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
-        callback(true);
+        callback(null, true);
       };
     },
     func: function(async, callback) {
-      async.everyLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.everyLimit(collection, limit, iterator, callback);
     }
   },
   'everyLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
-        callback(true);
+        callback(null, true);
       };
     },
     func: function(async, callback) {
-      async.everyLimit(collection, limit, iterator, function(res) {
-        callback(null, res);
-      });
+      async.everyLimit(collection, limit, iterator, callback);
     }
   },
   'concat:array': {
@@ -1113,7 +960,6 @@ module.exports = {
     }
   },
   'concat:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -1139,7 +985,6 @@ module.exports = {
     }
   },
   'concatSeries:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -1154,7 +999,6 @@ module.exports = {
   },
   'concatLimit:array': {
     times: 100000,
-    functions: [1, 2],
     setup: function(count) {
       collection = createArrayCollection(count);
       iterator = function(n, callback) {
@@ -1168,7 +1012,6 @@ module.exports = {
     }
   },
   'concatLimit:object': {
-    functions: [1, 2],
     setup: function(count) {
       collection = createObjectCollection(count);
       iterator = function(n, callback) {
@@ -1182,7 +1025,6 @@ module.exports = {
     }
   },
   'parallel:array': {
-    functions: [1, 2],
     setup: function(count) {
       tasks = _.times(count, function() {
         return function(done) {
@@ -1255,7 +1097,6 @@ module.exports = {
     }
   },
   'waterfall:simple': {
-    functions: [1, 2],
     setup: function(count) {
       tasks = _.times(count, function(n) {
         if (n === 0) {
@@ -1300,7 +1141,6 @@ module.exports = {
   },
   'angelFall:simple': {
     times: 10000,
-    functions: [1, 2],
     setup: function(count) {
       tasks = _.times(count, function(n) {
         if (n === 0) {
@@ -1317,17 +1157,11 @@ module.exports = {
         };
       });
     },
-    func: {
-      'default': function(async, callback) {
-        async.waterfall(tasks, callback);
-      },
-      'neo-async_current': function(async, callback) {
-        async.angelFall(tasks, callback);
-      }
+    func: function(async, callback) {
+      async.angelFall(tasks, callback);
     }
   },
   'whilst': {
-    functions: [1, 2],
     setup: function(count) {
       test = function() {
         return current++ < count;
@@ -1384,7 +1218,6 @@ module.exports = {
     }
   },
   'during': {
-    functions: [0, 2],
     setup: function(count) {
       test = function(callback) {
         callback(null, ++current < count);
@@ -1399,7 +1232,6 @@ module.exports = {
     }
   },
   'doDuring': {
-    functions: [0, 2],
     setup: function(count) {
       test = function(callback) {
         callback(null, ++current < count);
@@ -1509,7 +1341,6 @@ module.exports = {
     }
   },
   'queue': {
-    functions: [0, 2],
     times: 1000,
     setup: function() {
       worker = function(data, callback) {
@@ -1582,7 +1413,6 @@ module.exports = {
     }
   },
   'race': {
-    functions: [0, 2],
     setup: function(count) {
       tasks = _.times(count, function() {
         return function(done) {
@@ -1594,25 +1424,8 @@ module.exports = {
       async.race(tasks, callback);
     }
   },
-  'EventEmitter:series:simple': {
-    times: 10000,
-    functions: [1, 2],
-    setup: function(count) {
-      tasks = _.times(count, function(n) {
-        return function(callback) {
-          callback(null, n);
-        };
-      });
-    },
-    func: function(async, callback) {
-      new async.EventEmitter()
-        .on('event', tasks)
-        .emit('event', callback);
-    }
-  },
   'auto': {
     times: 100000,
-    functions: [0, 2],
     setup: function() {
       tasks = {
         task1: ['task2', function(results, callback) {
@@ -1644,7 +1457,6 @@ module.exports = {
   },
   'autoInject': {
     times: 100000,
-    functions: [0, 2],
     setup: function() {
       tasks = {
         task1: ['task2', function(task2, callback) {
@@ -1680,12 +1492,11 @@ module.exports = {
       times = count;
       func = function(callback) {
         if (++current === times) {
-          callback();
-        } else {
-          process.nextTick(function() {
-            callback('error');
-          });
+          return callback();
         }
+        process.nextTick(function() {
+          callback('error');
+        });
       };
     },
     func: function(async, callback) {
