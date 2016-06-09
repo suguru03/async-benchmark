@@ -33,7 +33,6 @@
   "boss": false,
   "debug": false,
   "eqnull": false,
-  "esnext": true,
   "evil": true,
   "expr": false,
   "funcscope": false,
@@ -64,5 +63,5 @@
 
   "-W018": true,
 
-  "es3":true
+  "esversion": 6
 }
