@@ -5,4 +5,4 @@ machine:
 test:
   override:
     - gulp init
-    - node . --skip -f '(.*)current' -t 'each|map|filter|reject|detect|reduce|sortBy|some|every|concat'
+    - node . --skip -f '(.*)current' -t '^(each|map|filter|reject|detect|reduce|transform|sortBy|some|every|concat)(.*):array'
