@@ -26,7 +26,13 @@ const benchmarks = _.chain([
 }, {})
 .value();
 
-const async = require('./neo-async');
+const async = (() => {
+  try {
+    return require('./neo-async');
+  } catch(e) {
+    return require('neo-async');
+  }
+})();
 const functions = (() => {
   let funcs = {
     'async_pre': (() => {
@@ -35,12 +41,23 @@ const functions = (() => {
       return _async;
     })(),
     'async_current': (() => {
-      let _async = require('./async');
-      _async.VERSION = require('./async/package.json').version;
+      let _async;
+      try {
+        _async = require('./async');
+        _async.VERSION = require('./async/package.json').version;
+      } catch(e) {
+        _async = {};
+      }
       return _async;
     })(),
     'neo-async_pre': require('neo-async'),
-    'neo-async_current': async
+    'neo-async_current': (() => {
+      if (async === require('neo-async')) {
+        return false;
+      }
+      async.VERSION += '.master';
+      return async;
+    })()
   };
   let exp = new RegExp(funcExp || '(.*)');
   return _.pickBy(funcs, (func, key) => {
@@ -57,7 +74,7 @@ const config = require('./config');
 const defaults = config.defaults;
 let tasks = _.omit(config, 'defaults');
 if (target) {
-  let exp = new RegExp('^' + target + '$');
+  let exp = new RegExp(target);
   tasks = _.pickBy(tasks, (obj, name) => {
     return exp.test(name) || exp.test(_.first(name.split(':')));
   });

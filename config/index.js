@@ -1140,7 +1140,6 @@ module.exports = {
     }
   },
   'angelFall:simple': {
-    times: 10000,
     setup: function(count) {
       tasks = _.times(count, function(n) {
         if (n === 0) {
@@ -1341,7 +1340,7 @@ module.exports = {
     }
   },
   'queue': {
-    times: 1000,
+    times: 10000,
     setup: function() {
       worker = function(data, callback) {
         callback();
@@ -1358,7 +1357,7 @@ module.exports = {
     }
   },
   'priorityQueue': {
-    times: 2000,
+    times: 100000,
     setup: function() {
       worker = function(data, callback) {
         callback();
@@ -1425,7 +1424,6 @@ module.exports = {
     }
   },
   'auto': {
-    times: 100000,
     setup: function() {
       tasks = {
         task1: ['task2', function(results, callback) {
